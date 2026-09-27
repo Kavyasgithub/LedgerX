@@ -1,0 +1,449 @@
+:root {
+  --paper: #f5f4ec;
+  --paper-alt: #e6ede2;
+  --rule: #b6c4b2;
+  --rule-hard: #7f9280;
+  --ink: #1d2a26;
+  --ink-soft: #5b6b64;
+  --debit: #17456f;
+  --credit: #9a2c1c;
+  --seal-ok: #2f6b46;
+  --seal-bad: #a3231a;
+  --field: #fffef8;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  --mono: ui-monospace, "SF Mono", "DejaVu Sans Mono", "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    transparent calc(100% - 1px),
+    rgba(155, 60, 45, 0.12) 100%
+  );
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 22px 90px;
+}
+
+/* ---------- masthead ---------- */
+header.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 42px 0 18px;
+  border-bottom: 3px double var(--rule-hard);
+  margin-bottom: 26px;
+}
+.masthead h1 {
+  font-size: 44px;
+  line-height: 1;
+  margin: 0 0 8px;
+  font-weight: normal;
+  letter-spacing: -0.5px;
+}
+.masthead p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+.masthead a.docs {
+  color: var(--debit);
+  font-size: 13px;
+}
+
+/* ---------- the invariant seal ---------- */
+.seal {
+  border: 2.5px solid var(--seal-ok);
+  color: var(--seal-ok);
+  padding: 12px 20px 13px;
+  text-align: center;
+  min-width: 232px;
+  position: relative;
+  transition: border-color 0.25s, color 0.25s;
+}
+.seal::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid currentColor;
+  opacity: 0.45;
+  pointer-events: none;
+}
+.seal.broken {
+  border-color: var(--seal-bad);
+  color: var(--seal-bad);
+}
+.seal.stale {
+  border-color: var(--ink-soft);
+  color: var(--ink-soft);
+}
+.seal .label {
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+}
+.seal .num {
+  font-family: var(--mono);
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.seal .state {
+  font-size: 13.5px;
+  font-style: italic;
+}
+.seal.flash {
+  animation: pulse 0.5s ease-out;
+}
+@keyframes pulse {
+  0% {
+    background: rgba(163, 35, 26, 0.22);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* ---------- layout ---------- */
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 34px;
+  align-items: start;
+}
+@media (max-width: 940px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+h2.sec {
+  font-size: 21px;
+  font-weight: normal;
+  margin: 0 0 2px;
+}
+.sec-note {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+section.block {
+  margin-bottom: 40px;
+}
+
+/* ---------- ledger tables ---------- */
+table.ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+table.ledger thead th {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  font-weight: normal;
+  font-style: italic;
+  color: var(--ink-soft);
+  text-align: left;
+  padding: 4px 10px 6px;
+  border-bottom: 1.5px solid var(--rule-hard);
+}
+table.ledger th.n,
+table.ledger td.n {
+  text-align: right;
+}
+table.ledger tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rule);
+}
+table.ledger tbody tr:nth-child(even) {
+  background: var(--paper-alt);
+}
+.acct-ref {
+  color: var(--ink);
+}
+.acct-kind {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.dr {
+  color: var(--debit);
+}
+.cr {
+  color: var(--credit);
+}
+.zero {
+  color: #9aa8a2;
+}
+.held {
+  color: var(--credit);
+}
+
+/* ---------- journal ---------- */
+.entry {
+  border-left: 3px solid var(--rule-hard);
+  padding: 9px 0 9px 15px;
+  margin-bottom: 15px;
+}
+.entry.reversal {
+  border-left-color: var(--credit);
+}
+.entry.tampered {
+  border-left-color: var(--seal-bad);
+  background: rgba(163, 35, 26, 0.06);
+}
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.entry-type {
+  font-size: 16px;
+}
+.entry-meta {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.postings {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.postings td {
+  padding: 2px 10px 2px 0;
+}
+.postings td.n {
+  text-align: right;
+  width: 120px;
+}
+.postings tr.sum td {
+  border-top: 1px solid var(--rule-hard);
+  padding-top: 4px;
+  font-weight: 700;
+}
+.entry-note {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 5px 0 0;
+}
+.empty {
+  padding: 26px 18px;
+  border: 1px dashed var(--rule-hard);
+  color: var(--ink-soft);
+  font-size: 14.5px;
+}
+
+/* ---------- teller panel ---------- */
+.panel {
+  border: 1px solid var(--rule-hard);
+  background: var(--field);
+  position: sticky;
+  top: 18px;
+}
+@media (max-width: 940px) {
+  .panel {
+    position: static;
+  }
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule-hard);
+}
+.tabs button {
+  flex: 1 0 auto;
+  font-family: var(--serif);
+  font-size: 13.5px;
+  background: var(--paper-alt);
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 2px solid transparent;
+  padding: 9px 11px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.tabs button:last-child {
+  border-right: 0;
+}
+.tabs button[aria-selected="true"] {
+  background: var(--field);
+  color: var(--ink);
+  border-bottom-color: var(--debit);
+}
+.form {
+  padding: 17px 18px 20px;
+}
+.form h3 {
+  margin: 0 0 3px;
+  font-size: 17px;
+  font-weight: normal;
+}
+.form .hint {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 11px 0 3px;
+}
+select,
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 7px 9px;
+  border: 1px solid var(--rule-hard);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 0;
+}
+select:focus,
+input:focus {
+  outline: 2px solid var(--debit);
+  outline-offset: -1px;
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+button.go {
+  width: 100%;
+  margin-top: 16px;
+  font-family: var(--serif);
+  font-size: 15px;
+  padding: 10px;
+  background: var(--debit);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+}
+button.go:hover {
+  background: #10375a;
+}
+button.go:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button.go.danger {
+  background: var(--seal-bad);
+}
+button.go.danger:hover {
+  background: #8b1c14;
+}
+button.go.muted {
+  background: var(--ink-soft);
+}
+
+.receipt {
+  margin: 15px 18px 18px;
+  padding: 10px 12px;
+  font-size: 13px;
+  border-left: 3px solid var(--seal-ok);
+  background: rgba(47, 107, 70, 0.07);
+}
+.receipt.bad {
+  border-left-color: var(--seal-bad);
+  background: rgba(163, 35, 26, 0.07);
+}
+.receipt .code {
+  font-family: var(--mono);
+  font-size: 12px;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.aside {
+  border-top: 1px solid var(--rule);
+  padding: 14px 18px 17px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+.aside p {
+  margin: 0 0 8px;
+}
+.aside p:last-child {
+  margin: 0;
+}
+code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--paper-alt);
+  padding: 0 3px;
+}
+
+.recon {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.recon div {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.recon .ok::before {
+  content: "pass  ";
+  color: var(--seal-ok);
+}
+.recon .fail::before {
+  content: "FAIL  ";
+  color: var(--seal-bad);
+  font-weight: 700;
+}
+
+.bar {
+  height: 8px;
+  border: 1px solid var(--rule-hard);
+  background: #fff;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.bar > div {
+  height: 100%;
+  background: var(--debit);
+  transition: width 0.2s;
+}
+
+footer.foot {
+  margin-top: 46px;
+  padding-top: 18px;
+  border-top: 3px double var(--rule-hard);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  max-width: 68ch;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
