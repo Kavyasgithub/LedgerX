@@ -1,9 +1,15 @@
-__pycache__/
-*.pyc
-.env
-.venv/
-venv/
-*.egg-info/
-.pytest_cache/
+# Node
 node_modules/
 dist/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
