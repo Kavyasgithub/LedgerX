@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, money, getWorkspaceId, setWorkspaceId } from "./api.js";
 import AccountsTable from "./components/AccountsTable.jsx";
@@ -123,8 +124,10 @@ export default function App() {
 
       {offline && (
         <div className="offline-banner">
-          Cannot reach the API on <code>:3000</code>. Start the backend:&nbsp;
-          <code>cd server &amp;&amp; npm run dev</code>
+          Cannot reach the API at <code>{API_BASE}</code>.&nbsp;
+          {import.meta.env.VITE_API_URL
+            ? "Check that the backend is deployed and CORS_ORIGIN is set correctly."
+            : <>Start the backend: <code>cd server &amp;&amp; npm run dev</code></>}
         </div>
       )}
 
