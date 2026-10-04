@@ -45,6 +45,16 @@ app.use('/v1/holds', holdsRouter)
 app.use('/v1/payments', paymentsRouter)
 app.use('/v1/admin', adminRouter)
 
+app.get('/', (req, res) => {
+  res.json({
+    name: 'LedgerX API',
+    version: '1.0.0',
+    status: 'ok',
+    docs: '/api-docs',
+    health: '/health',
+  })
+})
+
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1')
