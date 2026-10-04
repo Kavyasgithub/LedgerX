@@ -1765,6 +1765,65 @@ code {
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 @media (max-width: 780px) { .charts-grid { grid-template-columns: 1fr; } }
 
+/* ── Testing tips banner ────────────────────────────────── */
+.tips-banner {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.tips-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.tips-toggle:hover { background: var(--hover); }
+.tips-icon { color: var(--accent); font-size: 13px; }
+.tips-title { flex: 1; }
+.tips-chevron { color: var(--muted); font-size: 11px; }
+.tips-body {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tips-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tips-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--accent);
+}
+.tips-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.tips-desc code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--surface);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--text);
+}
+
 /* ── API Explorer ───────────────────────────────────────── */
 .api-shell {
   display: grid;

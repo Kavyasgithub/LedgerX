@@ -186,6 +186,48 @@ function SchemaTable({ spec, schema }) {
   );
 }
 
+// ── Testing tips banner ─────────────────────────────────
+function TestingTips() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="tips-banner">
+      <button className="tips-toggle" onClick={() => setOpen(o => !o)}>
+        <span className="tips-icon">⚑</span>
+        <span className="tips-title">How to test idempotency &amp; concurrency</span>
+        <span className="tips-chevron">{open ? "▾" : "▸"}</span>
+      </button>
+      {open && (
+        <div className="tips-body">
+          <div className="tips-item">
+            <span className="tips-label">Idempotency</span>
+            <span className="tips-desc">
+              Pick any write endpoint (POST), hit <strong>Send</strong>, then hit it again
+              with the <em>same</em> Idempotency-Key. You'll get the identical response and
+              the Journal will show only one transaction — the second call was a replay.
+            </span>
+          </div>
+          <div className="tips-item">
+            <span className="tips-label">Key reuse</span>
+            <span className="tips-desc">
+              Change the request body but keep the same key, then send. Expect a
+              <code> 422 IDEMPOTENCY_KEY_REUSED</code> — the server detected a mismatched
+              fingerprint and refused the request.
+            </span>
+          </div>
+          <div className="tips-item">
+            <span className="tips-label">Concurrency</span>
+            <span className="tips-desc">
+              Open this page in two browser tabs. In both, select the same transfer endpoint
+              with <em>different</em> Idempotency-Keys but the same accounts. Fire both at
+              the same time. Both should succeed and the Journal global sum must stay ₹0.
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ──────────────────────────────────────
 export default function ApiExplorer() {
   const [spec,     setSpec]    = useState(null);
@@ -342,6 +384,7 @@ export default function ApiExplorer() {
 
       {/* ── CENTER: request builder ── */}
       <div className="api-main">
+        <TestingTips />
         {!sel ? (
           <div className="api-empty">
             <div className="api-empty-icon">←</div>
