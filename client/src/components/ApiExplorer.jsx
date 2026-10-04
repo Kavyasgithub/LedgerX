@@ -228,6 +228,8 @@ function TestingTips() {
   );
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
 // ── Main component ──────────────────────────────────────
 export default function ApiExplorer() {
   const [spec,     setSpec]    = useState(null);
@@ -243,7 +245,7 @@ export default function ApiExplorer() {
   const [busy,     setBusy]    = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api-docs.json")
+    fetch(`${API_BASE}/api-docs.json`)
       .then(r => r.json())
       .then(setSpec)
       .catch(() => setErr(true));
@@ -292,7 +294,7 @@ export default function ApiExplorer() {
     setBusy(true);
     setResp(null);
     try {
-      let url = `http://localhost:3000${sel.path}`;
+      let url = `${API_BASE}${sel.path}`;
       Object.entries(pathP).forEach(([k, v]) => {
         url = url.replace(`{${k}}`, encodeURIComponent(v || `{${k}}`));
       });
@@ -323,7 +325,7 @@ export default function ApiExplorer() {
       <div className="api-empty" style={{ gridColumn: "1/-1" }}>
         <div className="api-empty-icon">⚠</div>
         <h3>Backend offline</h3>
-        <p>Cannot reach <code>localhost:3000/api-docs.json</code>. Start the server with <code>npm run dev</code>.</p>
+        <p>Cannot reach <code>{API_BASE || 'localhost:3000'}/api-docs.json</code>. Start the server with <code>npm run dev</code>.</p>
       </div>
     </div>
   );

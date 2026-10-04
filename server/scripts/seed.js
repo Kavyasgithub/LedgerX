@@ -28,9 +28,9 @@ async function main() {
     for (const [reference, accountType] of CHART) {
       const meta = ACCOUNT_TYPES[accountType]
       await client.query(
-        `INSERT INTO accounts (reference, account_type, currency, allows_negative, normal_side)
-         VALUES ($1, $2, 'INR', $3, $4)
-         ON CONFLICT (reference) DO NOTHING`,
+        `INSERT INTO accounts (reference, account_type, currency, allows_negative, normal_side, workspace_id)
+         VALUES ($1, $2, 'INR', $3, $4, 'default')
+         ON CONFLICT (reference, workspace_id) DO NOTHING`,
         [reference, accountType, meta.allows_negative, meta.normal_side]
       )
     }

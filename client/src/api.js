@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const http = axios.create({ baseURL: "" });
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
+const http = axios.create({ baseURL: API_BASE });
 
 const uuid = () =>
   (crypto.randomUUID && crypto.randomUUID()) ||
