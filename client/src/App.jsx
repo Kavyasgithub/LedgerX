@@ -11,10 +11,10 @@ import IntroPage from "./components/IntroPage.jsx";
 import WorkspaceGate from "./components/WorkspaceGate.jsx";
 
 const SECTIONS = [
-  ["overview",  "Overview"],
-  ["journal",   "Journal"],
-  ["api",       "API Explorer"],
-  ["analytics", "Analytics"],
+  ["overview",  "Overview",  "Overview"],
+  ["journal",   "Journal",   "Journal"],
+  ["api",       "API Explorer", "API"],
+  ["analytics", "Analytics", "Charts"],
 ];
 
 function NavSeal({ globalSum }) {
@@ -93,13 +93,14 @@ export default function App() {
         <div className="nav-brand">LedgerX <span>v1</span></div>
 
         <div className="nav-sections">
-          {SECTIONS.map(([id, label]) => (
+          {SECTIONS.map(([id, label, short]) => (
             <button
               key={id}
               className={`nav-btn ${section === id ? "active" : ""}`}
               onClick={() => setSection(id)}
             >
-              {label}
+              <span className="nav-btn-full">{label}</span>
+              <span className="nav-btn-short">{short}</span>
             </button>
           ))}
           <button
