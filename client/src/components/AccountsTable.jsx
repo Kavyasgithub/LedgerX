@@ -15,6 +15,7 @@ export default function AccountsTable({ accounts }) {
     return <div className="empty">Loading accounts…</div>;
   }
   return (
+    <div className="table-scroll-wrap">
     <table className="ledger">
       <thead>
         <tr>
@@ -50,5 +51,6 @@ export default function AccountsTable({ accounts }) {
         })}
       </tbody>
     </table>
+    </div>
   );
 }

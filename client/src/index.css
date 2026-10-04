@@ -2288,3 +2288,182 @@ footer.foot {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Nav label swap (full ↔ short) ── */
+.nav-btn-short { display: none; }
+.nav-btn-full  { display: inline; }
+@media (max-width: 480px) {
+  .nav-btn-short { display: inline; }
+  .nav-btn-full  { display: none; }
+}
+
+/* ── Table scroll fade indicator ── */
+.table-scroll-wrap {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,.9));
+  pointer-events: none;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+@media (min-width: 700px) {
+  .table-scroll-wrap::after { display: none; }
+}
+
+/* ── Top nav ── */
+@media (max-width: 768px) {
+  .nav-brand { width: auto; padding: 0 14px; font-size: 17px; }
+  .nav-sections {
+    padding: 0 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .nav-sections::-webkit-scrollbar { display: none; }
+  .nav-btn { font-size: 12px; padding: 6px 10px; white-space: nowrap; }
+  .nav-seal { display: none; }
+  .nav-ws-label { display: none; }
+  .nav-ws-name { max-width: 72px; font-size: 11px; }
+  .nav-workspace { padding-right: 8px; gap: 4px; }
+}
+@media (max-width: 480px) {
+  .nav-brand { padding: 0 10px; font-size: 15px; }
+  .nav-brand span { display: none; }
+  .nav-btn { font-size: 11.5px; padding: 5px 8px; }
+  .nav-ws-name { display: none; }
+}
+
+/* ── Shell / section ── */
+@media (max-width: 480px) {
+  .section { padding: 14px 12px 40px; }
+  .kpi-val { font-size: 17px; }
+}
+
+/* ── Overview grid: prevent children from expanding beyond 1fr ── */
+/* min-width:auto (CSS default on grid children) lets the table push the
+   column to 480px even after the grid collapses to 1fr — set it to 0. */
+@media (max-width: 960px) {
+  .overview-main, .overview-aside { min-width: 0; }
+  .overview-aside { position: static; }
+}
+
+/* ── Card head: wrap note text on narrow screens ── */
+@media (max-width: 600px) {
+  .card-head { flex-wrap: wrap; }
+  .card-note { flex-basis: 100%; }
+}
+
+/* ── Ledger tables: horizontal scroll ── */
+@media (max-width: 700px) {
+  table.ledger { min-width: 480px; }
+  .postings { min-width: 280px; }
+  .entry { overflow-x: auto; }
+}
+
+/* ── Panel tabs: prevent tab overflow ── */
+@media (max-width: 480px) {
+  .tabs button { font-size: 11px; padding: 8px 7px; }
+}
+
+/* ── Scenario columns (Before / Ledger / After) ── */
+@media (max-width: 700px) {
+  .sc-cols { grid-template-columns: 1fr; }
+  .sc-body { padding: 18px 16px; }
+}
+
+/* ── Scenario reversal grid ── */
+@media (max-width: 700px) {
+  .sc-rev-grid { grid-template-columns: 1fr; gap: 16px; }
+  .sc-rev-arrow {
+    flex-direction: row;
+    min-height: auto;
+    padding: 4px 0;
+    justify-content: center;
+  }
+  .sc-rev-arrow-line { width: 40px; height: 1px; flex: none; }
+  .sc-rev-arrow-label { font-size: 10px; }
+}
+
+/* ── Scenario hold balance row ── */
+@media (max-width: 600px) {
+  .sc-hold-bal-row { flex-wrap: wrap; gap: 6px; }
+  .sc-hold-bal-acct { flex-basis: 100%; }
+}
+
+/* ── Scenario tabs: 2×2 grid on small screens ── */
+@media (max-width: 560px) {
+  .sc-tabs { flex-wrap: wrap; border-radius: 8px; overflow: visible; }
+  .sc-tab {
+    flex: 1 1 48%;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    padding: 10px 6px;
+  }
+  .sc-tab:nth-child(even) { border-right: none; }
+  .sc-tab:nth-last-child(-n+2) { border-bottom: none; }
+}
+
+/* ── Math: sign grid stack ── */
+@media (max-width: 700px) {
+  .math-sign-grid { grid-template-columns: 1fr; gap: 16px; }
+  .math-sign-vs { padding: 0; text-align: left; }
+  .math-together-row { grid-template-columns: 1fr 80px; }
+  .math-tog-note { display: none; }
+  .math-avail-grid { grid-template-columns: 1fr; }
+  .math-rule-box { padding: 28px 20px; }
+  .math-sign-row { grid-template-columns: 70px 90px 1fr; }
+}
+
+/* ── API Explorer: single column on mobile ── */
+@media (max-width: 640px) {
+  .api-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: 200px 1fr;
+    height: calc(100vh - var(--nav-h));
+    overflow: hidden;
+  }
+  .api-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-y: auto;
+  }
+  .api-main { overflow-y: auto; padding: 16px; }
+  .api-param-row { flex-wrap: wrap; }
+  .api-param-name { width: 100%; margin-bottom: 2px; }
+  .ikey-hint { margin-left: 0; }
+}
+
+/* ── Journal layout ── */
+@media (max-width: 600px) {
+  .journal-aside { display: none; }
+}
+
+/* ── Analytics charts ── */
+@media (max-width: 600px) {
+  .pnl-val { font-size: 18px; }
+}
+
+/* ── Intro page: scenario section ── */
+@media (max-width: 560px) {
+  .intro-cta-sec { padding: 60px 24px; }
+  .sc-hold-step-title { font-size: 12px; }
+}
+
+/* ── Workspace gate: padding on small phones ── */
+@media (max-width: 480px) {
+  .wg-card { padding: 32px 22px; }
+  .wg-title { font-size: 22px; }
+}
