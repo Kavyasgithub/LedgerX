@@ -20,11 +20,18 @@ function refundSplit(originalCustomerAmount, originalFee, refundAmount) {
   return [merchantReturn, feeToReturn]
 }
 
-async function loadPayment(client, paymentId) {
+async function loadPayment(client, paymentId, workspaceId) {
   const txn = (
     await client.query(
-      `SELECT id, reference_id FROM transactions WHERE id = $1`,
-      [paymentId]
+      `SELECT t.id, t.reference_id
+       FROM transactions t
+       WHERE t.id = $1
+         AND EXISTS (
+           SELECT 1 FROM postings p
+           JOIN accounts a ON a.id = p.account_id
+           WHERE p.transaction_id = t.id AND a.workspace_id = $2
+         )`,
+      [paymentId, workspaceId]
     )
   ).rows[0]
   if (!txn) {
@@ -42,7 +49,7 @@ async function loadPayment(client, paymentId) {
 }
 
 export async function refundPayment(client, paymentId, request, idempotencyKey, requestBody, workspaceId = 'default') {
-  const payment = await loadPayment(client, paymentId)
+  const payment = await loadPayment(client, paymentId, workspaceId)
 
   let customerRef = null, merchantRef = null
   let originalCustomerAmount = 0, originalFee = 0

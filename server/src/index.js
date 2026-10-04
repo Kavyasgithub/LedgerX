@@ -12,11 +12,13 @@ import holdsRouter from './routes/holds.js'
 import paymentsRouter from './routes/payments.js'
 import adminRouter from './routes/admin.js'
 import { startRetentionJob } from './jobs/retention.js'
+import pool from './db/pool.js'
 
 const app = express()
 
-app.use(cors())
-app.use(express.json())
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+app.use(cors({ origin: corsOrigin }))
+app.use(express.json({ limit: '64kb' }))
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'LedgerX API Docs',
@@ -44,7 +46,14 @@ app.use('/v1/holds', holdsRouter)
 app.use('/v1/payments', paymentsRouter)
 app.use('/v1/admin', adminRouter)
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }))
+app.get('/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1')
+    res.json({ status: 'ok' })
+  } catch {
+    res.status(503).json({ status: 'degraded', reason: 'database unreachable' })
+  }
+})
 
 app.use((err, req, res, next) => {
   if (err instanceof LedgerError) {
@@ -60,7 +69,7 @@ app.use((err, req, res, next) => {
       },
     })
   }
-  console.error(err)
+  console.error(`[${req.requestId}] ${req.method} ${req.path}`, err)
   res.status(500).json({
     error: {
       code: 'INTERNAL_ERROR',
@@ -71,7 +80,15 @@ app.use((err, req, res, next) => {
 })
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Ledger server running on http://localhost:${PORT}`)
   startRetentionJob()
 })
+
+const shutdown = () => {
+  server.close(() => {
+    pool.end().then(() => process.exit(0))
+  })
+}
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)

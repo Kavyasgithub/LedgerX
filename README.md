@@ -152,5 +152,6 @@ Migrations live in `server/migrations/` and run in order via `npm run migrate`.
 ## Security notes
 
 - All SQL uses parameterized queries — no string interpolation of user values.
-- The uniform error handler never leaks internals; unexpected errors return a generic `INTERNAL_ERROR` with a `request_id`.
+- The uniform error handler never leaks stack traces, file paths, or raw DB errors to clients. Unexpected errors are logged server-side with `[request_id] METHOD /path` prefix for traceability, and the client receives only a generic `INTERNAL_ERROR` with the `request_id`.
+- **Known build-time vulnerability:** `braces ≤ 3.0.3` (GHSA-vfj7-8cjw-p6xm, High) is pulled in transitively by `tailwindcss` v3. There is no patched braces v3 release — the fix requires migrating to tailwindcss v4, which is a breaking change. This vulnerability only affects the build process (`vite build`) and is never present in the running server or browser bundle. It cannot be triggered by end users. Migrate to tailwindcss v4 when ready.
 - **Out of scope by design:** authentication/sessions, FX/multi-currency conversion, real gateway integration, tax computation. Add an auth layer before exposing this publicly.

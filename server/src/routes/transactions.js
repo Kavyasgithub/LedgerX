@@ -14,14 +14,22 @@ function isUUID(str) {
 router.get('/:identifier', asyncHandler(async (req, res) => {
   const { identifier } = req.params
   const clause = isUUID(identifier) ? 'id = $1' : 'idempotency_key = $1'
+  // clause is used as `t.${clause}` in the query below — column names are safe constants
 
+  const workspaceId = req.workspaceId
   const result = await withClient(pool, async (client) => {
     const txn = (
       await client.query(
-        `SELECT id, transaction_type, reference_id, idempotency_key,
-                reverses_transaction_id, metadata, created_at
-         FROM transactions WHERE ${clause}`,
-        [identifier]
+        `SELECT t.id, t.transaction_type, t.reference_id, t.idempotency_key,
+                t.reverses_transaction_id, t.metadata, t.created_at
+         FROM transactions t
+         WHERE t.${clause}
+           AND EXISTS (
+             SELECT 1 FROM postings p
+             JOIN accounts a ON a.id = p.account_id
+             WHERE p.transaction_id = t.id AND a.workspace_id = $2
+           )`,
+        [identifier, workspaceId]
       )
     ).rows[0]
     if (!txn) {
@@ -69,7 +77,7 @@ router.post('/:transactionId/reverse', asyncHandler(async (req, res) => {
 
   try {
     const result = await runInTransaction(pool, (client) =>
-      reverseTransaction(client, transactionId, idempotencyKey, { transaction_id: transactionId })
+      reverseTransaction(client, transactionId, idempotencyKey, { transaction_id: transactionId }, req.workspaceId)
     )
     res.status(201).json(result)
   } catch (err) {

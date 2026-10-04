@@ -6,6 +6,13 @@ import { naturalBalance } from '../domain.js'
 import { resolveAccounts, resolvePostings } from './common.js'
 
 export async function placeHold(client, request, idempotencyKey, requestBody, workspaceId = 'default') {
+  if (!request.account_reference || !request.currency) {
+    throw new LedgerError('VALIDATION_ERROR', 'account_reference and currency are required.', 400)
+  }
+  if (!Number.isInteger(request.amount) || request.amount <= 0) {
+    throw new LedgerError('VALIDATION_ERROR', 'amount must be a positive integer (paise).', 400)
+  }
+
   const stored = await idempotency.claim(client, idempotencyKey, requestBody, '/v1/holds', workspaceId)
   if (stored !== null) return stored
 
@@ -45,7 +52,7 @@ export async function placeHold(client, request, idempotencyKey, requestBody, wo
     }
   }
 
-  const ttl = request.expires_in_seconds ?? 3600
+  const ttl = Math.max(60, Math.min(request.expires_in_seconds ?? 3600, 90 * 24 * 3600))
   const row = (
     await client.query(
       `INSERT INTO holds (account_id, amount, currency, status, expires_at)

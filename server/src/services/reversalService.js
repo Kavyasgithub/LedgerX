@@ -1,11 +1,18 @@
 import { LedgerError } from '../errors.js'
 import { writeTransaction } from '../ledger/writer.js'
 
-export async function reverseTransaction(client, transactionId, idempotencyKey, requestBody) {
+export async function reverseTransaction(client, transactionId, idempotencyKey, requestBody, workspaceId = 'default') {
   const original = (
     await client.query(
-      `SELECT id, reference_id FROM transactions WHERE id = $1`,
-      [transactionId]
+      `SELECT t.id, t.reference_id
+       FROM transactions t
+       WHERE t.id = $1
+         AND EXISTS (
+           SELECT 1 FROM postings p
+           JOIN accounts a ON a.id = p.account_id
+           WHERE p.transaction_id = t.id AND a.workspace_id = $2
+         )`,
+      [transactionId, workspaceId]
     )
   ).rows[0]
   if (!original) {
@@ -61,5 +68,6 @@ export async function reverseTransaction(client, transactionId, idempotencyKey, 
     reference_id: original.reference_id,
     metadata: { reverses: transactionId },
     reverses_transaction_id: transactionId,
+    workspace_id: workspaceId,
   })
 }
