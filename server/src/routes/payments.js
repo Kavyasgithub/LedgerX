@@ -16,7 +16,7 @@ router.post('/:paymentId/refund', asyncHandler(async (req, res) => {
 
   const body = req.body
   const result = await runInTransaction(pool, (client) =>
-    refundPayment(client, paymentId, body, idempotencyKey, body)
+    refundPayment(client, paymentId, body, idempotencyKey, body, req.workspaceId)
   )
   res.status(201).json(result)
 }))

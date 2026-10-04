@@ -41,7 +41,7 @@ async function loadPayment(client, paymentId) {
   return { reference_id: txn.reference_id, postings }
 }
 
-export async function refundPayment(client, paymentId, request, idempotencyKey, requestBody) {
+export async function refundPayment(client, paymentId, request, idempotencyKey, requestBody, workspaceId = 'default') {
   const payment = await loadPayment(client, paymentId)
 
   let customerRef = null, merchantRef = null
@@ -105,7 +105,7 @@ export async function refundPayment(client, paymentId, request, idempotencyKey, 
   }
   rawPostings.push({ account_reference: customerRef, amount: -refundAmount })
 
-  const byRef = await resolveAccounts(client, rawPostings.map((p) => p.account_reference))
+  const byRef = await resolveAccounts(client, rawPostings.map((p) => p.account_reference), workspaceId)
   const resolved = rawPostings.map((p) => ({
     account_id: String(byRef[p.account_reference].id),
     account_reference: p.account_reference,
@@ -126,5 +126,6 @@ export async function refundPayment(client, paymentId, request, idempotencyKey, 
       refund_amount: refundAmount,
       reason: request.reason ?? null,
     },
+    workspace_id: workspaceId,
   })
 }

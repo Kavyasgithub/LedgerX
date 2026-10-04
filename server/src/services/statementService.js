@@ -15,13 +15,13 @@ function decodeCursor(cursor) {
   }
 }
 
-export async function getStatement(client, reference, limit = 50, cursor = null, dateFrom = null, dateTo = null) {
+export async function getStatement(client, reference, limit = 50, cursor = null, dateFrom = null, dateTo = null, workspaceId = 'default') {
   limit = Math.max(1, Math.min(limit, 200))
 
   const account = (
     await client.query(
-      `SELECT id, normal_side FROM accounts WHERE reference = $1`,
-      [reference]
+      `SELECT id, normal_side FROM accounts WHERE reference = $1 AND workspace_id = $2`,
+      [reference, workspaceId]
     )
   ).rows[0]
   if (!account) {

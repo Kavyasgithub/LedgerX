@@ -19,7 +19,7 @@ router.post('/', asyncHandler(async (req, res) => {
   }
 
   const result = await runInTransaction(pool, (client) =>
-    executeTransfer(client, body, idempotencyKey, body)
+    executeTransfer(client, body, idempotencyKey, body, req.workspaceId)
   )
   res.status(201).json(result)
 }))

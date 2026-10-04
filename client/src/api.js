@@ -9,6 +9,22 @@ const uuid = () =>
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
 
+// Workspace helpers
+export function getWorkspaceId() {
+  return localStorage.getItem("lx_workspace") || "";
+}
+export function setWorkspaceId(id) {
+  if (id) localStorage.setItem("lx_workspace", id);
+  else localStorage.removeItem("lx_workspace");
+}
+
+// Attach workspace header to every request
+http.interceptors.request.use((cfg) => {
+  const ws = getWorkspaceId();
+  if (ws) cfg.headers["X-Workspace-ID"] = ws;
+  return cfg;
+});
+
 // Every write carries a fresh idempotency key unless one is supplied.
 const idem = (key) => ({ headers: { "Idempotency-Key": key || uuid() } });
 
@@ -22,7 +38,8 @@ function unwrap(promise) {
 export const api = {
   uuid,
   dashboard: () => unwrap(http.get("/v1/admin/accounts")),
-  journal: (limit = 50) => unwrap(http.get("/v1/admin/journal", { params: { limit } })),
+  journal: (limit = 20, cursor = null) =>
+    unwrap(http.get("/v1/admin/journal", { params: { limit, ...(cursor ? { cursor } : {}) } })),
   holds: (status = "active") =>
     unwrap(http.get("/v1/admin/holds", { params: { status } })),
   ledger: (account, limit = 100) =>
@@ -42,6 +59,9 @@ export const api = {
     unwrap(http.post(`/v1/payments/${paymentId}/refund`, body, idem(key))),
   reverse: (txnId, key) =>
     unwrap(http.post(`/v1/transactions/${txnId}/reverse`, {}, idem(key))),
+
+  resetWorkspace: () => unwrap(http.delete("/v1/admin/workspace")),
+  seedWorkspace:  () => unwrap(http.post("/v1/admin/workspace/seed")),
 };
 
 // paise -> "1234.56" (no symbol, ledger style)

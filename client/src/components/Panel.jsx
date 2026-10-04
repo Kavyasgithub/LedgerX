@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, money, toPaise, shortId } from "../api.js";
+import Scenario from "./Scenario.jsx";
 
 const FEE_BPS = 200; // 2%
 const fee = (amt) => Math.round((amt * FEE_BPS) / 10000);
 
 const TABS = [
+  ["scenario", "Scenario"],
   ["topup", "Top up"],
   ["pay", "Pay"],
   ["hold", "Hold"],
@@ -80,6 +82,7 @@ export default function Panel({ accounts, transactions, refresh }) {
 
   // ---- tab bodies ----
   const bodies = {
+    scenario: <Scenario refresh={refresh} />,
     topup: (
       <div className="form">
         <h3>Top up a wallet</h3>
@@ -529,6 +532,7 @@ export default function Panel({ accounts, transactions, refresh }) {
   };
 
   const asides = {
+    scenario: "Escrow is the canonical ledger pattern: funds are reserved (not spent) until a real-world event resolves the outcome. The suspense account is the escrow vault.",
     topup: "Idempotency keys are attached to every write. Retrying a request never moves money twice.",
     pay: "The merchant is never briefly credited the full amount and then debited a fee. That intermediate state never existed.",
     hold: "Placing a hold writes no postings at all — the ledger records movements, not intentions.",

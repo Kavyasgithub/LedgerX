@@ -1,11 +1,11 @@
 import { LedgerError } from '../errors.js'
 
-export async function resolveAccounts(client, references) {
+export async function resolveAccounts(client, references, workspaceId = 'default') {
   const unique = [...new Set(references)]
   const result = await client.query(
     `SELECT id, reference, account_type, currency, allows_negative, normal_side, cached_balance
-     FROM accounts WHERE reference = ANY($1::text[])`,
-    [unique]
+     FROM accounts WHERE reference = ANY($1::text[]) AND workspace_id = $2`,
+    [unique, workspaceId]
   )
   const byRef = Object.fromEntries(result.rows.map((r) => [r.reference, r]))
   for (const ref of references) {

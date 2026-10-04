@@ -13,15 +13,15 @@ export function fingerprint(body) {
   return createHash('sha256').update(sortedStringify(body)).digest('hex')
 }
 
-export async function claim(client, key, requestBody, endpoint) {
+export async function claim(client, key, requestBody, endpoint, workspaceId = 'default') {
   const fp = fingerprint(requestBody)
 
   const claimed = await client.query(
-    `INSERT INTO idempotency_keys (key, request_fingerprint, endpoint, status)
-     VALUES ($1, $2, $3, 'in_progress')
+    `INSERT INTO idempotency_keys (key, request_fingerprint, endpoint, status, workspace_id)
+     VALUES ($1, $2, $3, 'in_progress', $4)
      ON CONFLICT (key) DO NOTHING
      RETURNING key`,
-    [key, fp, endpoint]
+    [key, fp, endpoint, workspaceId]
   )
   if (claimed.rows.length > 0) return null // we won the race; caller proceeds
 

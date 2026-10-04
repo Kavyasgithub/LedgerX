@@ -2,22 +2,38 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { randomUUID } from 'crypto'
+import swaggerUi from 'swagger-ui-express'
 import { LedgerError, errorBody } from './errors.js'
+import { swaggerSpec } from './swagger.js'
 import accountsRouter from './routes/accounts.js'
 import transfersRouter from './routes/transfers.js'
 import transactionsRouter from './routes/transactions.js'
 import holdsRouter from './routes/holds.js'
 import paymentsRouter from './routes/payments.js'
 import adminRouter from './routes/admin.js'
+import { startRetentionJob } from './jobs/retention.js'
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'LedgerX API Docs',
+  customCss: '.swagger-ui .topbar { background-color: #1e3a5f; }',
+}))
+
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec))
+
 app.use((req, res, next) => {
   req.requestId = `req_${randomUUID().replace(/-/g, '').slice(0, 16)}`
   res.setHeader('X-Request-Id', req.requestId)
+  next()
+})
+
+app.use((req, res, next) => {
+  const raw = req.headers['x-workspace-id'] || 'default'
+  req.workspaceId = raw.toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 64) || 'default'
   next()
 })
 
@@ -55,4 +71,7 @@ app.use((err, req, res, next) => {
 })
 
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`Ledger server running on http://localhost:${PORT}`))
+app.listen(PORT, () => {
+  console.log(`Ledger server running on http://localhost:${PORT}`)
+  startRetentionJob()
+})

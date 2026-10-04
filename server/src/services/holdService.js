@@ -5,11 +5,11 @@ import { writeTransaction } from '../ledger/writer.js'
 import { naturalBalance } from '../domain.js'
 import { resolveAccounts, resolvePostings } from './common.js'
 
-export async function placeHold(client, request, idempotencyKey, requestBody) {
-  const stored = await idempotency.claim(client, idempotencyKey, requestBody, '/v1/holds')
+export async function placeHold(client, request, idempotencyKey, requestBody, workspaceId = 'default') {
+  const stored = await idempotency.claim(client, idempotencyKey, requestBody, '/v1/holds', workspaceId)
   if (stored !== null) return stored
 
-  const byRef = await resolveAccounts(client, [request.account_reference])
+  const byRef = await resolveAccounts(client, [request.account_reference], workspaceId)
   const account = byRef[request.account_reference]
 
   const locked = (
@@ -70,8 +70,8 @@ export async function placeHold(client, request, idempotencyKey, requestBody) {
   return resp
 }
 
-export async function captureHold(client, holdId, request, idempotencyKey, requestBody) {
-  const byRef = await resolveAccounts(client, request.postings.map((p) => p.account_reference))
+export async function captureHold(client, holdId, request, idempotencyKey, requestBody, workspaceId = 'default') {
+  const byRef = await resolveAccounts(client, request.postings.map((p) => p.account_reference), workspaceId)
   const resolved = resolvePostings(request.postings, byRef)
 
   return writeTransaction(client, {
@@ -84,15 +84,17 @@ export async function captureHold(client, holdId, request, idempotencyKey, reque
     reference_id: request.reference_id ?? null,
     metadata: { ...(request.metadata ?? {}), hold_id: holdId },
     consume_hold_id: holdId,
+    workspace_id: workspaceId,
   })
 }
 
-export async function releaseHold(client, holdId, idempotencyKey, requestBody) {
+export async function releaseHold(client, holdId, idempotencyKey, requestBody, workspaceId = 'default') {
   const stored = await idempotency.claim(
     client,
     idempotencyKey,
     requestBody,
-    `/v1/holds/${holdId}/release`
+    `/v1/holds/${holdId}/release`,
+    workspaceId
   )
   if (stored !== null) return stored
 

@@ -36,9 +36,10 @@ export async function writeTransaction(client, {
   metadata = {},
   reverses_transaction_id = null,
   consume_hold_id = null,
+  workspace_id = 'default',
 }) {
   // Step 1 — claim idempotency key (atomic); replay returns stored response
-  const stored = await idempotency.claim(client, idempotency_key, request_body, endpoint)
+  const stored = await idempotency.claim(client, idempotency_key, request_body, endpoint, workspace_id)
   if (stored !== null) return stored
 
   // Step 2 — zero-sum invariant

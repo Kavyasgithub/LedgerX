@@ -15,7 +15,7 @@ router.post('/', asyncHandler(async (req, res) => {
 
   const body = req.body
   const result = await runInTransaction(pool, (client) =>
-    placeHold(client, body, idempotencyKey, body)
+    placeHold(client, body, idempotencyKey, body, req.workspaceId)
   )
   res.status(201).json(result)
 }))
@@ -29,7 +29,7 @@ router.post('/:holdId/capture', asyncHandler(async (req, res) => {
 
   const body = req.body
   const result = await runInTransaction(pool, (client) =>
-    captureHold(client, holdId, body, idempotencyKey, body)
+    captureHold(client, holdId, body, idempotencyKey, body, req.workspaceId)
   )
   res.status(201).json(result)
 }))
@@ -42,7 +42,7 @@ router.post('/:holdId/release', asyncHandler(async (req, res) => {
   }
 
   const result = await runInTransaction(pool, (client) =>
-    releaseHold(client, holdId, idempotencyKey, { hold_id: holdId })
+    releaseHold(client, holdId, idempotencyKey, { hold_id: holdId }, req.workspaceId)
   )
   res.status(200).json(result)
 }))

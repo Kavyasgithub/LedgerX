@@ -21,11 +21,11 @@ router.post('/', asyncHandler(async (req, res) => {
   try {
     const row = (
       await pool.query(
-        `INSERT INTO accounts (reference, account_type, currency, allows_negative, normal_side)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO accounts (reference, account_type, currency, allows_negative, normal_side, workspace_id)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id, reference, account_type, currency, allows_negative,
                    normal_side, cached_balance, created_at`,
-        [body.reference, body.account_type, body.currency, allowsNegative, normalSide]
+        [body.reference, body.account_type, body.currency, allowsNegative, normalSide, req.workspaceId]
       )
     ).rows[0]
 
@@ -44,7 +44,7 @@ router.post('/', asyncHandler(async (req, res) => {
     })
   } catch (err) {
     if (err.code === '23505') {
-      throw new LedgerError('VALIDATION_ERROR', `Account with reference '${body.reference}' already exists.`, 409)
+      throw new LedgerError('VALIDATION_ERROR', `Account '${body.reference}' already exists in this workspace.`, 409)
     }
     throw err
   }
@@ -58,7 +58,7 @@ router.get('/:reference/statement', asyncHandler(async (req, res) => {
   const dateTo = req.query.to ?? null
 
   const result = await withClient(pool, (client) =>
-    getStatement(client, reference, limit, cursor, dateFrom, dateTo)
+    getStatement(client, reference, limit, cursor, dateFrom, dateTo, req.workspaceId)
   )
   res.json(result)
 }))
@@ -71,8 +71,8 @@ router.get('/:reference', asyncHandler(async (req, res) => {
       await client.query(
         `SELECT id, reference, account_type, currency, allows_negative,
                 normal_side, cached_balance, created_at
-         FROM accounts WHERE reference = $1`,
-        [reference]
+         FROM accounts WHERE reference = $1 AND workspace_id = $2`,
+        [reference, req.workspaceId]
       )
     ).rows[0]
     if (!row) throw new LedgerError('ACCOUNT_NOT_FOUND', `Account not found: ${reference}`, 404)

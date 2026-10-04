@@ -1,9 +1,9 @@
 import { writeTransaction } from '../ledger/writer.js'
 import { resolveAccounts, resolvePostings } from './common.js'
 
-export async function executeTransfer(client, request, idempotencyKey, requestBody) {
+export async function executeTransfer(client, request, idempotencyKey, requestBody, workspaceId = 'default') {
   const references = request.postings.map((p) => p.account_reference)
-  const byRef = await resolveAccounts(client, references)
+  const byRef = await resolveAccounts(client, references, workspaceId)
   const resolved = resolvePostings(request.postings, byRef)
 
   return writeTransaction(client, {
@@ -15,5 +15,6 @@ export async function executeTransfer(client, request, idempotencyKey, requestBo
     request_body: requestBody,
     reference_id: request.reference_id ?? null,
     metadata: request.metadata ?? {},
+    workspace_id: workspaceId,
   })
 }
