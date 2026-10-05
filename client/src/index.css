@@ -2365,33 +2365,11 @@ footer.foot {
   .card-note { flex-basis: 100%; }
 }
 
-/* ── Ledger tables: horizontal scroll + sticky first column ── */
+/* ── Ledger tables: horizontal scroll ── */
 @media (max-width: 700px) {
   table.ledger { min-width: 480px; }
   .postings { min-width: 280px; }
   .entry { overflow-x: auto; }
-
-  /* Freeze the Account column so it stays visible while scrolling right */
-  table.ledger thead th:first-child,
-  table.ledger tbody td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: var(--surface);
-  }
-  table.ledger thead th:first-child {
-    background: var(--surface-alt);
-  }
-  /* Shadow on sticky column to signal it's frozen */
-  table.ledger thead th:first-child::after,
-  table.ledger tbody td:first-child::after {
-    content: "";
-    position: absolute;
-    top: 0; right: -8px; bottom: 0;
-    width: 8px;
-    background: linear-gradient(to right, rgba(0,0,0,.06), transparent);
-    pointer-events: none;
-  }
 }
 
 /* ── Panel tabs: prevent tab overflow ── */
